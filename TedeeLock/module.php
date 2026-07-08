@@ -77,7 +77,7 @@ class TedeeLock extends IPSModuleStrict
 
 
 
-    protected function ProcessHookData()
+    protected function ProcessHookData(): void
     {
         $payload = file_get_contents('php://input');
         $this->SendDebug('Webhook', 'Empfange Webhook: ' . $payload, 0);
