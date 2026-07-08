@@ -59,7 +59,7 @@ class TedeeLock extends IPSModuleStrict
         $this->MaintainVariable('LockControl', 'Steuerung', 1, 'Tedee.LockControl', 0, true);
 
         // Register Webhook Endpoint in Symcon
-        $this->RegisterHook("/hook/Tedee_" . $this->InstanceID);
+        $this->RegisterHook("Tedee_" . $this->InstanceID);
 
         $interval = $this->ReadPropertyInteger('UpdateInterval');
         $this->SetTimerInterval('UpdateTimer', $interval * 1000);
