@@ -1,0 +1,33 @@
+{
+    "elements": [
+        {
+            "type": "ValidationTextBox",
+            "name": "BridgeIP",
+            "caption": "Bridge IP-Adresse (z.B. 192.168.1.50)"
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "ApiToken",
+            "caption": "Local API Token"
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "UpdateInterval",
+            "caption": "Polling Intervall (Sekunden)",
+            "minimum": 0,
+            "maximum": 3600,
+            "suffix": "s"
+        },
+        {
+            "type": "Label",
+            "caption": "Setze das Update Intervall auf 0, um Polling zu deaktivieren, wenn du Webhooks der Bridge nutzt."
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Status jetzt aktualisieren",
+            "onClick": "TEDEE_UpdateStatus($id);"
+        }
+    ]
+}

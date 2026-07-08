@@ -1,0 +1,13 @@
+{
+    "id": "{C7A70438-2A27-4402-98F1-4FCE9177D9EF}",
+    "name": "TedeeLock",
+    "type": 3,
+    "vendor": "Tedee",
+    "aliases": [
+        "Tedee Smart Lock (Local API)"
+    ],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "TEDEE"
+}
