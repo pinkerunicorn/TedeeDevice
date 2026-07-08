@@ -3,6 +3,7 @@
     "name": "TedeeLock",
     "type": 3,
     "vendor": "Tedee",
+    "url": "https://github.com/pinkerunicorn/TedeeDevice",
     "aliases": [
         "Tedee Smart Lock (Local API)"
     ],
