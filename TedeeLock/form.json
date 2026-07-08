@@ -26,6 +26,18 @@
         {
             "type": "Label",
             "caption": "Setze das Update Intervall auf 0, um Polling zu deaktivieren, wenn du Webhooks der Bridge nutzt."
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "LockID",
+            "caption": "Lock ID (0 = automatisch das erste Schloss verwenden)",
+            "minimum": 0
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "SymconBaseURL",
+            "caption": "Symcon Base URL für Webhooks (z.B. http://10.1.60.150:3777)",
+            "validate": "^https?://.+"
         }
     ],
     "actions": [
@@ -33,6 +45,11 @@
             "type": "Button",
             "caption": "Status jetzt aktualisieren",
             "onClick": "TEDEE_UpdateStatus($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "Webhook an Bridge registrieren",
+            "onClick": "TEDEE_RegisterWebhookAtBridge($id);"
         }
     ]
 }
