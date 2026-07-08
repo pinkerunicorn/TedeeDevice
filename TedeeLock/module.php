@@ -140,26 +140,12 @@ class TedeeLock extends IPSModuleStrict
         $baseUrl = rtrim($baseUrl, "/");
         $webhookUrl = $baseUrl . "/hook/Tedee_" . $this->InstanceID;
 
-        $payloads = [
-            '1. PUT (no method field, array)' => [
-                'method' => 'PUT',
-                'payload' => json_encode(["url" => $webhookUrl, "headers" => []])
-            ],
-            '2. PUT (with method field, array)' => [
-                'method' => 'PUT',
-                'payload' => json_encode(["url" => $webhookUrl, "method" => "POST", "headers" => []])
-            ],
-            '3. POST (no method field, array)' => [
-                'method' => 'POST',
-                'payload' => json_encode(["url" => $webhookUrl, "headers" => []])
-            ],
-            '4. POST (with method field, array)' => [
-                'method' => 'POST',
-                'payload' => json_encode(["url" => $webhookUrl, "method" => "POST", "headers" => []])
-            ]
-        ];
+        $payload = json_encode([
+            "url" => $webhookUrl,
+            "method" => "POST",
+            "headers" => []
+        ]);
 
-        // Fetch auth token once
         $apiToken = $token;
         if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
             $timestamp = (string)round(microtime(true) * 1000);
@@ -167,32 +153,29 @@ class TedeeLock extends IPSModuleStrict
             $apiToken = $hash . $timestamp;
         }
 
-        foreach ($payloads as $name => $test) {
-            $opts = [
-                'http' => [
-                    'method' => $test['method'],
-                    'header' => "api_token: $apiToken\r\n" .
-                                "Content-Type: application/json\r\n" .
-                                "Content-Length: " . strlen($test['payload']) . "\r\n",
-                    'content' => $test['payload'],
-                    'timeout' => 3,
-                    'ignore_errors' => true
-                ]
-            ];
-            
-            $context = stream_context_create($opts);
-            $response = @file_get_contents("http://{$ip}/v1.0/callback", false, $context);
-            
-            // Get HTTP code from $http_response_header (magic variable created by file_get_contents)
-            $httpCode = 0;
-            if (isset($http_response_header) && is_array($http_response_header)) {
-                if (preg_match('/HTTP\/[\d\.]+ (\d+)/', $http_response_header[0], $matches)) {
-                    $httpCode = (int)$matches[1];
-                }
+        $opts = [
+            'http' => [
+                'method' => 'POST',
+                'header' => "api_token: $apiToken\r\n" .
+                            "Content-Type: application/json\r\n" .
+                            "Content-Length: " . strlen($payload) . "\r\n",
+                'content' => $payload,
+                'timeout' => 5,
+                'ignore_errors' => true
+            ]
+        ];
+        
+        $context = stream_context_create($opts);
+        $response = @file_get_contents("http://{$ip}/v1.0/callback", false, $context);
+        
+        $httpCode = 0;
+        if (isset($http_response_header) && is_array($http_response_header)) {
+            if (preg_match('/HTTP\/[\d\.]+ (\d+)/', $http_response_header[0], $matches)) {
+                $httpCode = (int)$matches[1];
             }
-
-            $this->SendDebug('Webhook', "$name - HTTP: $httpCode | Resp: $response", 0);
         }
+
+        $this->SendDebug('Webhook', "Registrierung an Bridge HTTP: $httpCode | Resp: $response", 0);
     }
 
     public function RequestAction(string $Ident, $Value): void
