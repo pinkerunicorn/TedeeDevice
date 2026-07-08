@@ -17,18 +17,6 @@
         },
         {
             "type": "NumberSpinner",
-            "name": "UpdateInterval",
-            "caption": "Polling Intervall (Sekunden)",
-            "minimum": 0,
-            "maximum": 3600,
-            "suffix": "s"
-        },
-        {
-            "type": "Label",
-            "caption": "Setze das Update Intervall auf 0, um Polling zu deaktivieren, wenn du Webhooks der Bridge nutzt."
-        },
-        {
-            "type": "NumberSpinner",
             "name": "LockID",
             "caption": "Lock ID (0 = automatisch das erste Schloss verwenden)",
             "minimum": 0

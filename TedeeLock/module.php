@@ -11,13 +11,10 @@ class TedeeLock extends IPSModuleStrict
         $this->RegisterPropertyString('BridgeIP', '');
         $this->RegisterPropertyString('ApiToken', '');
         $this->RegisterPropertyBoolean('UseEncryptedToken', true);
-        $this->RegisterPropertyInteger('UpdateInterval', 10);
         $this->RegisterPropertyInteger('LockID', 0);
         $this->RegisterPropertyString('SymconBaseURL', 'http://10.1.60.150:3777');
         
         $this->RegisterAttributeInteger('DetectedLockID', 0);
-        
-        $this->RegisterTimer('UpdateTimer', 0, 'TEDEE_UpdateStatus($_IPS[\'TARGET\']);');
 
         $this->RegisterVariableInteger('LockState', 'Schloss Status', '', 1);
         $this->RegisterVariableInteger('BatteryLevel', 'Batterie', '~Battery.100', 2);
@@ -61,14 +58,10 @@ class TedeeLock extends IPSModuleStrict
         // Register Webhook Endpoint in Symcon
         $this->RegisterHook("Tedee_" . $this->InstanceID);
 
-        $interval = $this->ReadPropertyInteger('UpdateInterval');
-        $this->SetTimerInterval('UpdateTimer', $interval * 1000);
+        // Fetch initial status once upon apply
+        $this->UpdateStatus();
 
-        if ($interval > 0) {
-            $this->UpdateStatus();
-        }
-
-        // Auto-Register Webhook at Bridge if Polling is disabled or URL is provided
+        // Auto-Register Webhook at Bridge if URL is provided
         $baseUrl = $this->ReadPropertyString('SymconBaseURL');
         if (!empty($baseUrl)) {
             $this->RegisterWebhookAtBridge();
@@ -103,7 +96,8 @@ class TedeeLock extends IPSModuleStrict
             $this->WriteAttributeInteger('DetectedLockID', $lockId);
         }
 
-        if ($event['event'] === 'device-state-changed') {
+        // Handle lock state changes
+        if ($event['event'] === 'lock-status-changed') {
             if (isset($data['state'])) {
                 $this->SetValue('LockState', $data['state']);
                 
@@ -117,12 +111,14 @@ class TedeeLock extends IPSModuleStrict
                     $this->SetValue('LockControl', $controlValue);
                 }
             }
-            if (isset($data['batteryLevel'])) {
-                $this->SetValue('BatteryLevel', $data['batteryLevel']);
-            }
-            if (isset($data['isCharging'])) {
-                $this->SetValue('IsCharging', $data['isCharging']);
-            }
+        }
+        
+        // Handle battery events (bridge might send them under a different event name, catching fallback)
+        if (isset($data['batteryLevel'])) {
+            $this->SetValue('BatteryLevel', $data['batteryLevel']);
+        }
+        if (isset($data['isCharging'])) {
+            $this->SetValue('IsCharging', $data['isCharging']);
         }
     }
 
