@@ -234,12 +234,6 @@ class TedeeLock extends IPSModuleStrict
             } elseif ($Value == 2) {
                 $this->SendCommand('pull');
             }
-            
-            // Fast poll to see changes immediately if polling is active
-            if ($this->ReadPropertyInteger('UpdateInterval') > 0) {
-                IPS_Sleep(1000);
-                $this->UpdateStatus();
-            }
         }
     }
 
