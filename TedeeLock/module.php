@@ -141,25 +141,43 @@ class TedeeLock extends IPSModuleStrict
         $webhookUrl = $baseUrl . "/hook/Tedee_" . $this->InstanceID;
 
         $payloads = [
-            'Test 1 (No Headers)' => json_encode(["url" => $webhookUrl]),
-            'Test 2 (Empty Array)' => json_encode(["url" => $webhookUrl, "headers" => []]),
-            'Test 3 (Empty Object)' => json_encode(["url" => $webhookUrl, "headers" => new stdClass()]),
-            'Test 4 (Dummy Header)' => json_encode(["url" => $webhookUrl, "headers" => [["key" => "X-Dummy", "value" => "1"]]])
+            'Test POST with Method field' => [
+                'reqMethod' => 'POST',
+                'payload' => json_encode([
+                    "url" => $webhookUrl,
+                    "method" => "POST",
+                    "headers" => []
+                ])
+            ],
+            'Test PUT with Method field' => [
+                'reqMethod' => 'PUT',
+                'payload' => json_encode([
+                    "url" => $webhookUrl,
+                    "method" => "POST",
+                    "headers" => []
+                ])
+            ]
         ];
 
-        foreach ($payloads as $name => $payload) {
+        foreach ($payloads as $name => $test) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "http://{$ip}/v1.0/callback");
-            curl_setopt($ch, CURLOPT_POST, 1);
+            
+            if ($test['reqMethod'] === 'PUT') {
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            } else {
+                curl_setopt($ch, CURLOPT_POST, 1);
+            }
+            
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_TIMEOUT, 3);
             
             $headers = $this->GetAuthHeaders();
             $headers[] = 'Content-Type: application/json';
-            $headers[] = 'Content-Length: ' . strlen($payload);
+            $headers[] = 'Content-Length: ' . strlen($test['payload']);
             $headers[] = 'Expect:';
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $test['payload']);
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
