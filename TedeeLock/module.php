@@ -141,47 +141,55 @@ class TedeeLock extends IPSModuleStrict
         $webhookUrl = $baseUrl . "/hook/Tedee_" . $this->InstanceID;
 
         $payloads = [
-            'Test POST with Method field' => [
-                'reqMethod' => 'POST',
-                'payload' => json_encode([
-                    "url" => $webhookUrl,
-                    "method" => "POST",
-                    "headers" => []
-                ])
+            '1. PUT (no method field, array)' => [
+                'method' => 'PUT',
+                'payload' => json_encode(["url" => $webhookUrl, "headers" => []])
             ],
-            'Test PUT with Method field' => [
-                'reqMethod' => 'PUT',
-                'payload' => json_encode([
-                    "url" => $webhookUrl,
-                    "method" => "POST",
-                    "headers" => []
-                ])
+            '2. PUT (with method field, array)' => [
+                'method' => 'PUT',
+                'payload' => json_encode(["url" => $webhookUrl, "method" => "POST", "headers" => []])
+            ],
+            '3. POST (no method field, array)' => [
+                'method' => 'POST',
+                'payload' => json_encode(["url" => $webhookUrl, "headers" => []])
+            ],
+            '4. POST (with method field, array)' => [
+                'method' => 'POST',
+                'payload' => json_encode(["url" => $webhookUrl, "method" => "POST", "headers" => []])
             ]
         ];
 
-        foreach ($payloads as $name => $test) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "http://{$ip}/v1.0/callback");
-            
-            if ($test['reqMethod'] === 'PUT') {
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-            } else {
-                curl_setopt($ch, CURLOPT_POST, 1);
-            }
-            
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-            
-            $headers = $this->GetAuthHeaders();
-            $headers[] = 'Content-Type: application/json';
-            $headers[] = 'Content-Length: ' . strlen($test['payload']);
-            $headers[] = 'Expect:';
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $test['payload']);
+        // Fetch auth token once
+        $apiToken = $token;
+        if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
+            $timestamp = (string)round(microtime(true) * 1000);
+            $hash = hash('sha256', $token . $timestamp);
+            $apiToken = $hash . $timestamp;
+        }
 
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-            curl_close($ch);
+        foreach ($payloads as $name => $test) {
+            $opts = [
+                'http' => [
+                    'method' => $test['method'],
+                    'header' => "api_token: $apiToken\r\n" .
+                                "Content-Type: application/json\r\n" .
+                                "Content-Length: " . strlen($test['payload']) . "\r\n",
+                    'content' => $test['payload'],
+                    'timeout' => 3,
+                    'ignore_errors' => true
+                ]
+            ];
+            
+            $context = stream_context_create($opts);
+            $response = @file_get_contents("http://{$ip}/v1.0/callback", false, $context);
+            
+            // Get HTTP code from $http_response_header (magic variable created by file_get_contents)
+            $httpCode = 0;
+            if (isset($http_response_header) && is_array($http_response_header)) {
+                if (preg_match('/HTTP\/[\d\.]+ (\d+)/', $http_response_header[0], $matches)) {
+                    $httpCode = (int)$matches[1];
+                }
+            }
 
             $this->SendDebug('Webhook', "$name - HTTP: $httpCode | Resp: $response", 0);
         }
