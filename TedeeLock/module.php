@@ -10,6 +10,7 @@ class TedeeLock extends IPSModuleStrict
         
         $this->RegisterPropertyString('BridgeIP', '');
         $this->RegisterPropertyString('ApiToken', '');
+        $this->RegisterPropertyBoolean('UseEncryptedToken', true);
         $this->RegisterPropertyInteger('UpdateInterval', 10);
         
         $this->RegisterAttributeInteger('LockID', 0);
@@ -91,10 +92,7 @@ class TedeeLock extends IPSModuleStrict
         curl_setopt($ch, CURLOPT_URL, "http://{$ip}/v1.0/lock");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'api_token: ' . $token,
-            'accept: application/json'
-        ]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->GetAuthHeaders());
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
@@ -148,21 +146,37 @@ class TedeeLock extends IPSModuleStrict
             return;
         }
 
+        $headers = $this->GetAuthHeaders();
+        $headers[] = 'Content-Length: 0';
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "http://{$ip}/v1.0/lock/{$lockId}/{$action}");
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'api_token: ' . $token,
-            'accept: application/json',
-            'Content-Length: 0'
-        ]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
 
         $this->SendDebug('SendCommand', "Action: $action, HTTP: $httpCode, Resp: $response", 0);
+    }
+
+    private function GetAuthHeaders(): array
+    {
+        $token = $this->ReadPropertyString('ApiToken');
+        if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
+            $timestamp = (string)round(microtime(true) * 1000);
+            $hash = hash('sha256', $token . $timestamp);
+            $apiToken = $hash . $timestamp;
+        } else {
+            $apiToken = $token;
+        }
+
+        return [
+            'api_token: ' . $apiToken,
+            'accept: application/json'
+        ];
     }
 }

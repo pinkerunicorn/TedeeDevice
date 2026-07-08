@@ -11,6 +11,11 @@
             "caption": "Local API Token"
         },
         {
+            "type": "CheckBox",
+            "name": "UseEncryptedToken",
+            "caption": "Verschlüsselter Token (Empfohlen, wie in der App eingestellt)"
+        },
+        {
             "type": "NumberSpinner",
             "name": "UpdateInterval",
             "caption": "Polling Intervall (Sekunden)",
