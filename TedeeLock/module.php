@@ -84,47 +84,44 @@ class TedeeLock extends IPSModuleStrict
 
         if (empty($payload)) return;
 
-        $events = json_decode($payload, true);
-        if (!is_array($events)) return;
+        $event = json_decode($payload, true);
+        if (!is_array($event) || !isset($event['event'])) return;
 
         $targetLockId = $this->GetActiveLockID();
 
-        foreach ($events as $event) {
-            if (!isset($event['deviceId'])) continue;
+        $data = $event['data'] ?? [];
+        if (!isset($data['deviceId'])) return;
 
-            $lockId = (int)$event['deviceId'];
-            
-            // Only process if it matches the configured LockID (or if 0, update the attribute and use it)
-            if ($targetLockId !== 0 && $lockId !== $targetLockId) {
-                continue;
-            }
+        $lockId = (int)$data['deviceId'];
+        
+        // Only process if it matches the configured LockID (or if 0, update the attribute and use it)
+        if ($targetLockId !== 0 && $lockId !== $targetLockId) {
+            return;
+        }
 
-            if ($targetLockId === 0) {
-                $this->WriteAttributeInteger('DetectedLockID', $lockId);
-            }
+        if ($targetLockId === 0) {
+            $this->WriteAttributeInteger('DetectedLockID', $lockId);
+        }
 
-            if (isset($event['event']) && $event['event'] === 'device-state-changed') {
-                $data = $event['data'] ?? [];
+        if ($event['event'] === 'device-state-changed') {
+            if (isset($data['state'])) {
+                $this->SetValue('LockState', $data['state']);
                 
-                if (isset($data['state'])) {
-                    $this->SetValue('LockState', $data['state']);
-                    
-                    $controlValue = -1;
-                    if ($data['state'] == 2) {
-                        $controlValue = 0;
-                    } elseif ($data['state'] == 6) {
-                        $controlValue = 1;
-                    }
-                    if ($controlValue !== -1 && GetValue($this->GetIDForIdent('LockControl')) != $controlValue) {
-                        $this->SetValue('LockControl', $controlValue);
-                    }
+                $controlValue = -1;
+                if ($data['state'] == 2) {
+                    $controlValue = 0;
+                } elseif ($data['state'] == 6) {
+                    $controlValue = 1;
                 }
-                if (isset($data['batteryLevel'])) {
-                    $this->SetValue('BatteryLevel', $data['batteryLevel']);
+                if ($controlValue !== -1 && GetValue($this->GetIDForIdent('LockControl')) != $controlValue) {
+                    $this->SetValue('LockControl', $controlValue);
                 }
-                if (isset($data['isCharging'])) {
-                    $this->SetValue('IsCharging', $data['isCharging']);
-                }
+            }
+            if (isset($data['batteryLevel'])) {
+                $this->SetValue('BatteryLevel', $data['batteryLevel']);
+            }
+            if (isset($data['isCharging'])) {
+                $this->SetValue('IsCharging', $data['isCharging']);
             }
         }
     }
@@ -151,7 +148,7 @@ class TedeeLock extends IPSModuleStrict
         
         $payload = json_encode([
             "url" => $webhookUrl,
-            "headers" => []
+            "headers" => new stdClass()
         ]);
 
         $headers = $this->GetAuthHeaders();
