@@ -140,30 +140,33 @@ class TedeeLock extends IPSModuleStrict
         $baseUrl = rtrim($baseUrl, "/");
         $webhookUrl = $baseUrl . "/hook/Tedee_" . $this->InstanceID;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://{$ip}/v1.0/callback");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        
-        $payload = json_encode([
-            "url" => $webhookUrl,
-            "headers" => new stdClass()
-        ]);
+        $payloads = [
+            'Test 1 (No Headers)' => json_encode(["url" => $webhookUrl]),
+            'Test 2 (Empty Array)' => json_encode(["url" => $webhookUrl, "headers" => []]),
+            'Test 3 (Empty Object)' => json_encode(["url" => $webhookUrl, "headers" => new stdClass()]),
+            'Test 4 (Dummy Header)' => json_encode(["url" => $webhookUrl, "headers" => [["key" => "X-Dummy", "value" => "1"]]])
+        ];
 
-        $headers = $this->GetAuthHeaders();
-        $headers[] = 'Content-Type: application/json';
-        $headers[] = 'Content-Length: ' . strlen($payload);
-        $headers[] = 'Expect:'; // Disable Expect: 100-continue
+        foreach ($payloads as $name => $payload) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://{$ip}/v1.0/callback");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            
+            $headers = $this->GetAuthHeaders();
+            $headers[] = 'Content-Type: application/json';
+            $headers[] = 'Content-Length: ' . strlen($payload);
+            $headers[] = 'Expect:';
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            curl_close($ch);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
-
-        $this->SendDebug('Webhook', "Registrierung an Bridge HTTP: $httpCode | URL: $webhookUrl | Resp: $response", 0);
+            $this->SendDebug('Webhook', "$name - HTTP: $httpCode | Resp: $response", 0);
+        }
     }
 
     public function RequestAction(string $Ident, $Value): void
