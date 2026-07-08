@@ -154,7 +154,8 @@ class TedeeLock extends IPSModuleStrict
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         
         $payload = json_encode([
-            "url" => $webhookUrl
+            "url" => $webhookUrl,
+            "headers" => []
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
