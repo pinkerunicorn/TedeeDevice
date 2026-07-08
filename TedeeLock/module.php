@@ -161,9 +161,9 @@ class TedeeLock extends IPSModuleStrict
         $callbacks = json_decode($response, true);
         if (is_array($callbacks)) {
             foreach ($callbacks as $cb) {
-                // Delete all old Symcon Webhooks to free up space
-                if (isset($cb['id']) && isset($cb['url']) && strpos($cb['url'], '/hook/Tedee_') !== false) {
-                    usleep(300000);
+                // Delete ONLY old webhooks for THIS specific instance
+                if (isset($cb['id']) && isset($cb['url']) && strpos($cb['url'], '/hook/Tedee_' . $this->InstanceID) !== false) {
+                    sleep(1);
                     
                     $delToken = $token;
                     if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
@@ -188,7 +188,7 @@ class TedeeLock extends IPSModuleStrict
         }
 
         // --- STEP 3: REGISTER NEW CALLBACK ---
-        usleep(300000);
+        sleep(1);
         
         $regToken = $token;
         if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
