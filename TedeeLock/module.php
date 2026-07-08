@@ -130,80 +130,102 @@ class TedeeLock extends IPSModuleStrict
     {
         $ip = $this->ReadPropertyString('BridgeIP');
         $token = $this->ReadPropertyString('ApiToken');
-        $baseUrl = $this->ReadPropertyString('SymconBaseURL');
-        
+        $baseUrl = rtrim($this->ReadPropertyString('SymconBaseURL'), "/");
+        $webhookUrl = $baseUrl . "/hook/Tedee_" . $this->InstanceID;
+
         if (empty($ip) || empty($token) || empty($baseUrl)) {
             $this->SendDebug('Webhook', 'Fehlende Daten für Webhook-Registrierung', 0);
             return;
         }
 
-        $baseUrl = rtrim($baseUrl, "/");
-        $webhookUrl = $baseUrl . "/hook/Tedee_" . $this->InstanceID;
+        // --- STEP 1: GET ALL CALLBACKS ---
+        $apiToken = $token;
+        if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
+            $timestamp = (string)round(microtime(true) * 1000);
+            $hash = hash('sha256', $token . $timestamp);
+            $apiToken = $hash . $timestamp;
+        }
 
-        $payloads = [
-            '1. POST (headers: [])' => json_encode([
-                "url" => $webhookUrl,
-                "method" => "POST",
-                "headers" => []
-            ]),
-            '2. POST (no headers field)' => json_encode([
-                "url" => $webhookUrl,
-                "method" => "POST"
-            ]),
-            '3. POST (headers: [dummy])' => json_encode([
-                "url" => $webhookUrl,
-                "method" => "POST",
-                "headers" => [["key" => "X-Symcon", "value" => "1"]]
-            ]),
-            '4. POST (headers: {})' => json_encode([
-                "url" => $webhookUrl,
-                "method" => "POST",
-                "headers" => new stdClass()
-            ]),
-            '5. PUT (no headers field)' => json_encode([
-                "url" => $webhookUrl,
-                "method" => "POST"
-            ])
+        $opts = [
+            'http' => [
+                'method' => 'GET',
+                'header' => "api_token: $apiToken\r\nAccept: application/json\r\n",
+                'timeout' => 5,
+                'ignore_errors' => true
+            ]
         ];
+        $context = stream_context_create($opts);
+        $response = @file_get_contents("http://{$ip}/v1.0/callback", false, $context);
+        $this->SendDebug('Webhook-List', "Existing: " . $response, 0);
 
-        foreach ($payloads as $name => $payload) {
-            // GENERATE FRESH TOKEN PER REQUEST to avoid 401 Replay protection
-            $apiToken = $token;
-            if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
-                $timestamp = (string)round(microtime(true) * 1000);
-                $hash = hash('sha256', $token . $timestamp);
-                $apiToken = $hash . $timestamp;
-            }
+        $callbacks = json_decode($response, true);
+        if (is_array($callbacks)) {
+            foreach ($callbacks as $cb) {
+                // Delete all old Symcon Webhooks to free up space
+                if (isset($cb['id']) && isset($cb['url']) && strpos($cb['url'], '/hook/Tedee_') !== false) {
+                    usleep(300000);
+                    
+                    $delToken = $token;
+                    if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
+                        $timestamp = (string)round(microtime(true) * 1000);
+                        $hash = hash('sha256', $token . $timestamp);
+                        $delToken = $hash . $timestamp;
+                    }
 
-            $method = strpos($name, 'PUT') !== false ? 'PUT' : 'POST';
-
-            $opts = [
-                'http' => [
-                    'method' => $method,
-                    'header' => "api_token: $apiToken\r\n" .
-                                "Content-Type: application/json\r\n" .
-                                "Content-Length: " . strlen($payload) . "\r\n",
-                    'content' => $payload,
-                    'timeout' => 5,
-                    'ignore_errors' => true
-                ]
-            ];
-            
-            $context = stream_context_create($opts);
-            $response = @file_get_contents("http://{$ip}/v1.0/callback", false, $context);
-            
-            $httpCode = 0;
-            if (isset($http_response_header) && is_array($http_response_header)) {
-                if (preg_match('/HTTP\/[\d\.]+ (\d+)/', $http_response_header[0], $matches)) {
-                    $httpCode = (int)$matches[1];
+                    $delOpts = [
+                        'http' => [
+                            'method' => 'DELETE',
+                            'header' => "api_token: $delToken\r\n",
+                            'timeout' => 5,
+                            'ignore_errors' => true
+                        ]
+                    ];
+                    $delContext = stream_context_create($delOpts);
+                    $delResponse = @file_get_contents("http://{$ip}/v1.0/callback/" . $cb['id'], false, $delContext);
+                    $this->SendDebug('Webhook-Delete', "Deleted ID " . $cb['id'] . ": " . $delResponse, 0);
                 }
             }
-
-            $this->SendDebug('Webhook', "$name - HTTP: $httpCode | Resp: $response", 0);
-            
-            // Wait 500ms between requests to avoid rate limiting
-            usleep(500000);
         }
+
+        // --- STEP 3: REGISTER NEW CALLBACK ---
+        usleep(300000);
+        
+        $regToken = $token;
+        if ($this->ReadPropertyBoolean('UseEncryptedToken')) {
+            $timestamp = (string)round(microtime(true) * 1000);
+            $hash = hash('sha256', $token . $timestamp);
+            $regToken = $hash . $timestamp;
+        }
+
+        $payload = json_encode([
+            "url" => $webhookUrl,
+            "method" => "POST",
+            "headers" => []
+        ]);
+
+        $opts = [
+            'http' => [
+                'method' => 'POST',
+                'header' => "api_token: $regToken\r\n" .
+                            "Content-Type: application/json\r\n" .
+                            "Content-Length: " . strlen($payload) . "\r\n",
+                'content' => $payload,
+                'timeout' => 5,
+                'ignore_errors' => true
+            ]
+        ];
+        
+        $context = stream_context_create($opts);
+        $response = @file_get_contents("http://{$ip}/v1.0/callback", false, $context);
+        
+        $httpCode = 0;
+        if (isset($http_response_header) && is_array($http_response_header)) {
+            if (preg_match('/HTTP\/[\d\.]+ (\d+)/', $http_response_header[0], $matches)) {
+                $httpCode = (int)$matches[1];
+            }
+        }
+
+        $this->SendDebug('Webhook', "Registrierung an Bridge HTTP: $httpCode | Resp: $response", 0);
     }
 
     public function RequestAction(string $Ident, $Value): void
