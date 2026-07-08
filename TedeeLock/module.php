@@ -149,14 +149,17 @@ class TedeeLock extends IPSModuleStrict
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         
-        $headers = $this->GetAuthHeaders();
-        $headers[] = 'Content-Type: application/json';
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
         $payload = json_encode([
             "url" => $webhookUrl,
             "headers" => []
         ]);
+
+        $headers = $this->GetAuthHeaders();
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Content-Length: ' . strlen($payload);
+        $headers[] = 'Expect:'; // Disable Expect: 100-continue
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
         $response = curl_exec($ch);
