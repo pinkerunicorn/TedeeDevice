@@ -28,6 +28,13 @@ class TedeeLock extends IPSModuleStrict
     public function ApplyChanges(): void
     {
         parent::ApplyChanges();
+        // --- Auto-generated References ---
+        $ref_LockID = $this->ReadPropertyInteger('LockID');
+        if ($ref_LockID > 1 && @IPS_ObjectExists($ref_LockID)) {
+            $this->RegisterReference($ref_LockID);
+        }
+        // ---------------------------------
+
 
         // Create profiles if not exist
         
