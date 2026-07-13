@@ -70,26 +70,26 @@ class TedeeLock extends IPSModuleStrict
 
 
 
-    protected function ProcessHookData(): void
+    protected function ProcessHookData(): string
     {
         $payload = file_get_contents('php://input');
         $this->SendDebug('Webhook', 'Empfange Webhook: ' . $payload, 0);
 
-        if (empty($payload)) return;
+        if (empty($payload)) return "";
 
         $event = json_decode($payload, true);
-        if (!is_array($event) || !isset($event['event'])) return;
+        if (!is_array($event) || !isset($event['event'])) return "";
 
         $targetLockId = $this->GetActiveLockID();
 
         $data = $event['data'] ?? [];
-        if (!isset($data['deviceId'])) return;
+        if (!isset($data['deviceId'])) return "";
 
         $lockId = (int)$data['deviceId'];
         
         // Only process if it matches the configured LockID (or if 0, update the attribute and use it)
         if ($targetLockId !== 0 && $lockId !== $targetLockId) {
-            return;
+            return "";
         }
 
         if ($targetLockId === 0) {
@@ -120,6 +120,7 @@ class TedeeLock extends IPSModuleStrict
         if (isset($data['isCharging'])) {
             $this->SetValue('IsCharging', $data['isCharging']);
         }
+        return "";
     }
 
     public function RegisterWebhookAtBridge(): void
@@ -363,9 +364,10 @@ class TedeeLock extends IPSModuleStrict
         ];
     }
 
-    protected function LogMessage($Message, $Type)
+    protected function LogMessage(string $Message, int $Type): bool
     {
         IPS_LogMessage('SmartVillaKunterbunt', 'TedeeLock: ' . $Message);
+        return true;
     }
 }
 
