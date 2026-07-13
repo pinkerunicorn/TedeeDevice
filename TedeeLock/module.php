@@ -37,29 +37,29 @@ class TedeeLock extends IPSModuleStrict
         $this->MaintainVariable('LockState', 'Schloss Status', 1, '', 1, true);
         $this->MaintainVariable('LockControl', 'Steuerung', 1, '', 0, true);
 
-        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockState'), [
-            'Associations' => [
-                ['Value' => 0, 'Name' => 'Unkalibriert', 'Icon' => 'Warning', 'Color' => 0xFF0000],
-                ['Value' => 1, 'Name' => 'Kalibriert...', 'Icon' => 'TurnLeft', 'Color' => 0x00FF00],
-                ['Value' => 2, 'Name' => 'Entriegelt', 'Icon' => 'LockOpen', 'Color' => 0x00FF00],
-                ['Value' => 3, 'Name' => 'Halb-Verriegelt', 'Icon' => 'Warning', 'Color' => 0xFFA500],
-                ['Value' => 4, 'Name' => 'Entriegelt...', 'Icon' => 'LockOpen', 'Color' => 0x00FF00],
-                ['Value' => 5, 'Name' => 'Verriegelt...', 'Icon' => 'LockClosed', 'Color' => 0xFF0000],
-                ['Value' => 6, 'Name' => 'Verriegelt', 'Icon' => 'LockClosed', 'Color' => 0xFF0000],
-                ['Value' => 7, 'Name' => 'Falle gezogen', 'Icon' => 'Door', 'Color' => 0x0000FF],
-                ['Value' => 8, 'Name' => 'Falle zieht...', 'Icon' => 'Door', 'Color' => 0x0000FF],
-                ['Value' => 9, 'Name' => 'Unbekannt', 'Icon' => 'Information', 'Color' => -1],
-                ['Value' => 18, 'Name' => 'Update...', 'Icon' => 'Gear', 'Color' => 0x00FF00]
-            ]
-        ]);
+        if (!IPS_VariableProfileExists('Tedee.LockState')) {
+            IPS_CreateVariableProfile('Tedee.LockState', 1);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 0, 'Unkalibriert', 'Warning', 0xFF0000);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 1, 'Kalibriert...', 'TurnLeft', 0x00FF00);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 2, 'Entriegelt', 'LockOpen', 0x00FF00);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 3, 'Halb-Verriegelt', 'Warning', 0xFFA500);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 4, 'Entriegelt...', 'LockOpen', 0x00FF00);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 5, 'Verriegelt...', 'LockClosed', 0xFF0000);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 6, 'Verriegelt', 'LockClosed', 0xFF0000);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 7, 'Falle gezogen', 'Door', 0x0000FF);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 8, 'Falle zieht...', 'Door', 0x0000FF);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 9, 'Unbekannt', 'Information', -1);
+            IPS_SetVariableProfileAssociation('Tedee.LockState', 18, 'Update...', 'Gear', 0x00FF00);
+        }
+        IPS_SetVariableCustomProfile($this->GetIDForIdent('LockState'), 'Tedee.LockState');
 
-        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockControl'), [
-            'Associations' => [
-                ['Value' => 0, 'Name' => 'Entriegeln', 'Icon' => 'LockOpen', 'Color' => -1],
-                ['Value' => 1, 'Name' => 'Verriegeln', 'Icon' => 'LockClosed', 'Color' => -1],
-                ['Value' => 2, 'Name' => 'Falle ziehen', 'Icon' => 'Door', 'Color' => -1]
-            ]
-        ]);
+        if (!IPS_VariableProfileExists('Tedee.LockControl')) {
+            IPS_CreateVariableProfile('Tedee.LockControl', 1);
+            IPS_SetVariableProfileAssociation('Tedee.LockControl', 0, 'Entriegeln', 'LockOpen', -1);
+            IPS_SetVariableProfileAssociation('Tedee.LockControl', 1, 'Verriegeln', 'LockClosed', -1);
+            IPS_SetVariableProfileAssociation('Tedee.LockControl', 2, 'Falle ziehen', 'Door', -1);
+        }
+        IPS_SetVariableCustomProfile($this->GetIDForIdent('LockControl'), 'Tedee.LockControl');
 
 // Register Webhook Endpoint in Symcon
         $this->RegisterHook("Tedee_" . $this->InstanceID);
