@@ -362,4 +362,10 @@ class TedeeLock extends IPSModuleStrict
             'accept: application/json'
         ];
     }
+
+    protected function LogMessage($Message, $KL_MESSAGE = KL_MESSAGE)
+    {
+        IPS_LogMessage('SmartVillaKunterbunt', 'TedeeLock: ' . $Message);
+    }
 }
+
