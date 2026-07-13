@@ -30,32 +30,38 @@ class TedeeLock extends IPSModuleStrict
         parent::ApplyChanges();
 
         // Create profiles if not exist
-        if (!IPS_VariableProfileExists('Tedee.LockState')) {
-            IPS_CreateVariableProfile('Tedee.LockState', 1);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 0, 'Unkalibriert', 'Warning', 0xFF0000);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 1, 'Kalibriert...', 'TurnLeft', 0x00FF00);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 2, 'Entriegelt', 'LockOpen', 0x00FF00);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 3, 'Halb-Verriegelt', 'Warning', 0xFFA500);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 4, 'Entriegelt...', 'LockOpen', 0x00FF00);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 5, 'Verriegelt...', 'LockClosed', 0xFF0000);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 6, 'Verriegelt', 'LockClosed', 0xFF0000);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 7, 'Falle gezogen', 'Door', 0x0000FF);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 8, 'Falle zieht...', 'Door', 0x0000FF);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 9, 'Unbekannt', 'Information', -1);
-            IPS_SetVariableProfileAssociation('Tedee.LockState', 18, 'Update...', 'Gear', 0x00FF00);
-        }
         
-        if (!IPS_VariableProfileExists('Tedee.LockControl')) {
-            IPS_CreateVariableProfile('Tedee.LockControl', 1);
-            IPS_SetVariableProfileAssociation('Tedee.LockControl', 0, 'Entriegeln', 'LockOpen', -1);
-            IPS_SetVariableProfileAssociation('Tedee.LockControl', 1, 'Verriegeln', 'LockClosed', -1);
-            IPS_SetVariableProfileAssociation('Tedee.LockControl', 2, 'Falle ziehen', 'Door', -1);
-        }
+        
+        
 
-        $this->MaintainVariable('LockState', 'Schloss Status', 1, 'Tedee.LockState', 1, true);
-        $this->MaintainVariable('LockControl', 'Steuerung', 1, 'Tedee.LockControl', 0, true);
+        $this->MaintainVariable('LockState', 'Schloss Status', 1, '', 1, true);
+        $this->MaintainVariable('LockControl', 'Steuerung', 1, '', 0, true);
 
-        // Register Webhook Endpoint in Symcon
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockState'), [
+            'ASSOCIATIONS' => [
+                ['VALUE' => 0, 'NAME' => 'Unkalibriert', 'ICON' => 'Warning', 'COLOR' => 0xFF0000],
+                ['VALUE' => 1, 'NAME' => 'Kalibriert...', 'ICON' => 'TurnLeft', 'COLOR' => 0x00FF00],
+                ['VALUE' => 2, 'NAME' => 'Entriegelt', 'ICON' => 'LockOpen', 'COLOR' => 0x00FF00],
+                ['VALUE' => 3, 'NAME' => 'Halb-Verriegelt', 'ICON' => 'Warning', 'COLOR' => 0xFFA500],
+                ['VALUE' => 4, 'NAME' => 'Entriegelt...', 'ICON' => 'LockOpen', 'COLOR' => 0x00FF00],
+                ['VALUE' => 5, 'NAME' => 'Verriegelt...', 'ICON' => 'LockClosed', 'COLOR' => 0xFF0000],
+                ['VALUE' => 6, 'NAME' => 'Verriegelt', 'ICON' => 'LockClosed', 'COLOR' => 0xFF0000],
+                ['VALUE' => 7, 'NAME' => 'Falle gezogen', 'ICON' => 'Door', 'COLOR' => 0x0000FF],
+                ['VALUE' => 8, 'NAME' => 'Falle zieht...', 'ICON' => 'Door', 'COLOR' => 0x0000FF],
+                ['VALUE' => 9, 'NAME' => 'Unbekannt', 'ICON' => 'Information', 'COLOR' => -1],
+                ['VALUE' => 18, 'NAME' => 'Update...', 'ICON' => 'Gear', 'COLOR' => 0x00FF00]
+            ]
+        ]);
+
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockControl'), [
+            'ASSOCIATIONS' => [
+                ['VALUE' => 0, 'NAME' => 'Entriegeln', 'ICON' => 'LockOpen', 'COLOR' => -1],
+                ['VALUE' => 1, 'NAME' => 'Verriegeln', 'ICON' => 'LockClosed', 'COLOR' => -1],
+                ['VALUE' => 2, 'NAME' => 'Falle ziehen', 'ICON' => 'Door', 'COLOR' => -1]
+            ]
+        ]);
+
+// Register Webhook Endpoint in Symcon
         $this->RegisterHook("Tedee_" . $this->InstanceID);
 
         // Fetch initial status once upon apply
