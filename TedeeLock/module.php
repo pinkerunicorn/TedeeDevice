@@ -363,10 +363,9 @@ class TedeeLock extends IPSModuleStrict
         ];
     }
 
-    protected function LogMessage(string $Message, int $Type): bool
+    protected function LogMessage($Message, $Type)
     {
         IPS_LogMessage('SmartVillaKunterbunt', 'TedeeLock: ' . $Message);
-        return true;
     }
 }
 
