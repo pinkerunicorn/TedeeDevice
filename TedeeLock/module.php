@@ -38,26 +38,26 @@ class TedeeLock extends IPSModuleStrict
         $this->MaintainVariable('LockControl', 'Steuerung', 1, '', 0, true);
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockState'), [
-            'ASSOCIATIONS' => [
-                ['VALUE' => 0, 'NAME' => 'Unkalibriert', 'ICON' => 'Warning', 'COLOR' => 0xFF0000],
-                ['VALUE' => 1, 'NAME' => 'Kalibriert...', 'ICON' => 'TurnLeft', 'COLOR' => 0x00FF00],
-                ['VALUE' => 2, 'NAME' => 'Entriegelt', 'ICON' => 'LockOpen', 'COLOR' => 0x00FF00],
-                ['VALUE' => 3, 'NAME' => 'Halb-Verriegelt', 'ICON' => 'Warning', 'COLOR' => 0xFFA500],
-                ['VALUE' => 4, 'NAME' => 'Entriegelt...', 'ICON' => 'LockOpen', 'COLOR' => 0x00FF00],
-                ['VALUE' => 5, 'NAME' => 'Verriegelt...', 'ICON' => 'LockClosed', 'COLOR' => 0xFF0000],
-                ['VALUE' => 6, 'NAME' => 'Verriegelt', 'ICON' => 'LockClosed', 'COLOR' => 0xFF0000],
-                ['VALUE' => 7, 'NAME' => 'Falle gezogen', 'ICON' => 'Door', 'COLOR' => 0x0000FF],
-                ['VALUE' => 8, 'NAME' => 'Falle zieht...', 'ICON' => 'Door', 'COLOR' => 0x0000FF],
-                ['VALUE' => 9, 'NAME' => 'Unbekannt', 'ICON' => 'Information', 'COLOR' => -1],
-                ['VALUE' => 18, 'NAME' => 'Update...', 'ICON' => 'Gear', 'COLOR' => 0x00FF00]
+            'Associations' => [
+                ['Value' => 0, 'Name' => 'Unkalibriert', 'Icon' => 'Warning', 'Color' => 0xFF0000],
+                ['Value' => 1, 'Name' => 'Kalibriert...', 'Icon' => 'TurnLeft', 'Color' => 0x00FF00],
+                ['Value' => 2, 'Name' => 'Entriegelt', 'Icon' => 'LockOpen', 'Color' => 0x00FF00],
+                ['Value' => 3, 'Name' => 'Halb-Verriegelt', 'Icon' => 'Warning', 'Color' => 0xFFA500],
+                ['Value' => 4, 'Name' => 'Entriegelt...', 'Icon' => 'LockOpen', 'Color' => 0x00FF00],
+                ['Value' => 5, 'Name' => 'Verriegelt...', 'Icon' => 'LockClosed', 'Color' => 0xFF0000],
+                ['Value' => 6, 'Name' => 'Verriegelt', 'Icon' => 'LockClosed', 'Color' => 0xFF0000],
+                ['Value' => 7, 'Name' => 'Falle gezogen', 'Icon' => 'Door', 'Color' => 0x0000FF],
+                ['Value' => 8, 'Name' => 'Falle zieht...', 'Icon' => 'Door', 'Color' => 0x0000FF],
+                ['Value' => 9, 'Name' => 'Unbekannt', 'Icon' => 'Information', 'Color' => -1],
+                ['Value' => 18, 'Name' => 'Update...', 'Icon' => 'Gear', 'Color' => 0x00FF00]
             ]
         ]);
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockControl'), [
-            'ASSOCIATIONS' => [
-                ['VALUE' => 0, 'NAME' => 'Entriegeln', 'ICON' => 'LockOpen', 'COLOR' => -1],
-                ['VALUE' => 1, 'NAME' => 'Verriegeln', 'ICON' => 'LockClosed', 'COLOR' => -1],
-                ['VALUE' => 2, 'NAME' => 'Falle ziehen', 'ICON' => 'Door', 'COLOR' => -1]
+            'Associations' => [
+                ['Value' => 0, 'Name' => 'Entriegeln', 'Icon' => 'LockOpen', 'Color' => -1],
+                ['Value' => 1, 'Name' => 'Verriegeln', 'Icon' => 'LockClosed', 'Color' => -1],
+                ['Value' => 2, 'Name' => 'Falle ziehen', 'Icon' => 'Door', 'Color' => -1]
             ]
         ]);
 
