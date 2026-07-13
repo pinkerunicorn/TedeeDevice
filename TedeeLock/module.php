@@ -105,7 +105,7 @@ class TedeeLock extends IPSModuleStrict
         // Handle lock state changes
         if ($event['event'] === 'lock-status-changed') {
             if (isset($data['state'])) {
-                $this->SetValue('LockState', $data['state']);
+                $this->SetValue('LockState', (int)$data['state']);
                 
                 $controlValue = -1;
                 if ($data['state'] == 2) {
@@ -114,17 +114,17 @@ class TedeeLock extends IPSModuleStrict
                     $controlValue = 1;
                 }
                 if ($controlValue !== -1 && GetValue($this->GetIDForIdent('LockControl')) != $controlValue) {
-                    $this->SetValue('LockControl', $controlValue);
+                    $this->SetValue('LockControl', (int)$controlValue);
                 }
             }
         }
         
         // Handle battery events (bridge might send them under a different event name, catching fallback)
         if (isset($data['batteryLevel'])) {
-            $this->SetValue('BatteryLevel', $data['batteryLevel']);
+            $this->SetValue('BatteryLevel', (int)$data['batteryLevel']);
         }
         if (isset($data['isCharging'])) {
-            $this->SetValue('IsCharging', $data['isCharging']);
+            $this->SetValue('IsCharging', (bool)$data['isCharging']);
         }
     }
 
@@ -289,7 +289,7 @@ class TedeeLock extends IPSModuleStrict
                     }
                     
                     if (isset($lock['state'])) {
-                        $this->SetValue('LockState', $lock['state']);
+                        $this->SetValue('LockState', (int)$lock['state']);
                         
                         // Map state to control variable to keep UI in sync
                         $controlValue = -1;
@@ -299,14 +299,14 @@ class TedeeLock extends IPSModuleStrict
                             $controlValue = 1;
                         }
                         if ($controlValue !== -1 && GetValue($this->GetIDForIdent('LockControl')) != $controlValue) {
-                            $this->SetValue('LockControl', $controlValue);
+                            $this->SetValue('LockControl', (int)$controlValue);
                         }
                     }
                     if (isset($lock['batteryLevel'])) {
-                        $this->SetValue('BatteryLevel', $lock['batteryLevel']);
+                        $this->SetValue('BatteryLevel', (int)$lock['batteryLevel']);
                     }
                     if (isset($lock['isCharging'])) {
-                        $this->SetValue('IsCharging', $lock['isCharging']);
+                        $this->SetValue('IsCharging', (bool)$lock['isCharging']);
                     }
                     break;
                 }
