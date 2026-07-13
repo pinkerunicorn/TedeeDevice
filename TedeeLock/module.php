@@ -37,7 +37,7 @@ class TedeeLock extends IPSModuleStrict
         $this->MaintainVariable('LockState', 'Schloss Status', 1, '', 1, true);
         $this->MaintainVariable('LockControl', 'Steuerung', 1, '', 0, true);
 
-        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockState'), [
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockState'), json_encode([
             'ASSOCIATIONS' => [
                 ['VALUE' => 0, 'NAME' => 'Unkalibriert', 'ICON' => 'Warning', 'COLOR' => 0xFF0000],
                 ['VALUE' => 1, 'NAME' => 'Kalibriert...', 'ICON' => 'TurnLeft', 'COLOR' => 0x00FF00],
@@ -51,15 +51,15 @@ class TedeeLock extends IPSModuleStrict
                 ['VALUE' => 9, 'NAME' => 'Unbekannt', 'ICON' => 'Information', 'COLOR' => -1],
                 ['VALUE' => 18, 'NAME' => 'Update...', 'ICON' => 'Gear', 'COLOR' => 0x00FF00]
             ]
-        ]);
+        ]));
 
-        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockControl'), [
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('LockControl'), json_encode([
             'ASSOCIATIONS' => [
                 ['VALUE' => 0, 'NAME' => 'Entriegeln', 'ICON' => 'LockOpen', 'COLOR' => -1],
                 ['VALUE' => 1, 'NAME' => 'Verriegeln', 'ICON' => 'LockClosed', 'COLOR' => -1],
                 ['VALUE' => 2, 'NAME' => 'Falle ziehen', 'ICON' => 'Door', 'COLOR' => -1]
             ]
-        ]);
+        ]));
 
 // Register Webhook Endpoint in Symcon
         $this->RegisterHook("Tedee_" . $this->InstanceID);
