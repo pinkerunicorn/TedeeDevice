@@ -21,12 +21,12 @@ class TedeeLock extends IPSModuleStrict
         $this->RegisterVariableInteger('BatteryLevel', 'Batterie', '', 2);
         IPS_SetIcon($this->GetIDForIdent('BatteryLevel'), 'Battery');
         if (function_exists('IPS_SetVariableCustomPresentation')) {
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('BatteryLevel'), 'Battery.100');
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('BatteryLevel'), ['PRESENTATION' => 1]);
         }
         $this->RegisterVariableBoolean('IsCharging', 'Wird geladen', '', 3);
         IPS_SetIcon($this->GetIDForIdent('IsCharging'), 'Plug');
         if (function_exists('IPS_SetVariableCustomPresentation')) {
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('IsCharging'), 'Switch');
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('IsCharging'), ['PRESENTATION' => 1]);
         }
         
         // Control variable
