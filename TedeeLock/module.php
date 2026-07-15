@@ -7,6 +7,12 @@ class TedeeLock extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
+        if (function_exists('IPS_SetVariableCustomPresentation')) {
+            foreach(['BatteryLevel', 'IsCharging'] as $ident) {
+                $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+                if ($id !== false) @IPS_SetVariableCustomPresentation($id, []);
+            }
+        }
         
         $this->RegisterPropertyString('BridgeIP', '');
         $this->RegisterPropertyString('ApiToken', '');
