@@ -24,7 +24,7 @@ class TedeeLock extends IPSModuleStrict
 
         $this->RegisterVariableInteger('LockState', 'Schloss Status', '', 1);
         IPS_SetIcon($this->GetIDForIdent('LockState'), 'Information');
-        $this->RegisterVariableInteger('BatteryLevel', 'Batterie', '~Battery.100', 2);
+        $this->RegisterVariableInteger('BatteryLevel', 'Batterie', '', 2);
         IPS_SetIcon($this->GetIDForIdent('BatteryLevel'), 'Battery');
         $this->RegisterVariableBoolean('IsCharging', 'Wird geladen', '', 3);
         IPS_SetIcon($this->GetIDForIdent('IsCharging'), 'Plug');
