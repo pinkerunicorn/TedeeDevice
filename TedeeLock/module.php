@@ -7,12 +7,6 @@ class TedeeLock extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        if (function_exists('IPS_SetVariableCustomPresentation')) {
-            foreach(['BatteryLevel', 'IsCharging'] as $ident) {
-                $id = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
-                if ($id !== false) @IPS_SetVariableCustomPresentation($id, []);
-            }
-        }
         
         $this->RegisterPropertyString('BridgeIP', '');
         $this->RegisterPropertyString('ApiToken', '');
@@ -78,6 +72,13 @@ class TedeeLock extends IPSModuleStrict
         IPS_SetVariableProfileAssociation('Tedee.LockControl', 2, 'Falle ziehen', 'Door', -1);
         IPS_SetVariableProfileAssociation('Tedee.LockControl', 3, 'Entriegeln & Falle ziehen', 'LockOpen', -1);
         IPS_SetVariableCustomProfile($this->GetIDForIdent('LockControl'), 'Tedee.LockControl');
+
+        if (function_exists('IPS_SetVariableCustomPresentation')) {
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('BatteryLevel'), [
+                'SUFFIX' => ' %',
+                'ICON' => 'Battery'
+            ]);
+        }
 
 // Register Webhook Endpoint in Symcon
         $this->RegisterHook("Tedee_" . $this->InstanceID);
