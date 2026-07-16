@@ -24,7 +24,7 @@ class TedeeLock extends IPSModuleStrict
 
         $this->RegisterVariableInteger('LockState', 'Schloss Status', '', 1);
         IPS_SetIcon($this->GetIDForIdent('LockState'), 'Information');
-        $this->RegisterVariableInteger('BatteryLevel', 'Batterie', '', 2);
+        $this->RegisterVariableInteger('BatteryLevel', 'Batterie', '~Battery.100', 2);
         IPS_SetIcon($this->GetIDForIdent('BatteryLevel'), 'Battery');
         $this->RegisterVariableBoolean('IsCharging', 'Wird geladen', '', 3);
         IPS_SetIcon($this->GetIDForIdent('IsCharging'), 'Plug');
@@ -72,10 +72,11 @@ class TedeeLock extends IPSModuleStrict
 
         if (!IPS_VariableProfileExists('Tedee.LockControl')) {
             IPS_CreateVariableProfile('Tedee.LockControl', 1);
-            IPS_SetVariableProfileAssociation('Tedee.LockControl', 0, 'Entriegeln', 'LockOpen', -1);
-            IPS_SetVariableProfileAssociation('Tedee.LockControl', 1, 'Verriegeln', 'LockClosed', -1);
-            IPS_SetVariableProfileAssociation('Tedee.LockControl', 2, 'Falle ziehen', 'Door', -1);
         }
+        IPS_SetVariableProfileAssociation('Tedee.LockControl', 0, 'Entriegeln', 'LockOpen', -1);
+        IPS_SetVariableProfileAssociation('Tedee.LockControl', 1, 'Verriegeln', 'LockClosed', -1);
+        IPS_SetVariableProfileAssociation('Tedee.LockControl', 2, 'Falle ziehen', 'Door', -1);
+        IPS_SetVariableProfileAssociation('Tedee.LockControl', 3, 'Entriegeln & Falle ziehen', 'LockOpen', -1);
         IPS_SetVariableCustomProfile($this->GetIDForIdent('LockControl'), 'Tedee.LockControl');
 
 // Register Webhook Endpoint in Symcon
@@ -256,6 +257,8 @@ class TedeeLock extends IPSModuleStrict
                 $this->SendCommand('lock');
             } elseif ($Value == 2) {
                 $this->SendCommand('pull');
+            } elseif ($Value == 3) {
+                $this->SendCommand('unlock');
             }
         }
     }
