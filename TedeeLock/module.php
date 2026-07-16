@@ -251,7 +251,7 @@ class TedeeLock extends IPSModuleStrict
     {
         if ($Ident === 'LockControl') {
             if ($Value == 0) {
-                $this->SendCommand('unlock');
+                $this->SendCommand('unlock?mode=3');
             } elseif ($Value == 1) {
                 $this->SendCommand('lock');
             } elseif ($Value == 2) {
