@@ -75,8 +75,7 @@ class TedeeLock extends IPSModuleStrict
 
         if (function_exists('IPS_SetVariableCustomPresentation')) {
             IPS_SetVariableCustomPresentation($this->GetIDForIdent('BatteryLevel'), [
-                'SUFFIX' => ' %',
-                'ICON' => 'Battery'
+                'SUFFIX' => ' %'
             ]);
         }
 
