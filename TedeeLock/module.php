@@ -401,6 +401,10 @@ class TedeeLock extends IPSModuleStrict
 {
     "elements": [
         {
+            "type": "Label",
+            "label": "Willkommen bei deiner Tedee-Bridge Einrichtung! Hier stellst du die grundlegenden Verbindungsparameter ein."
+        },
+        {
             "type": "RowLayout",
             "items": [
                 {
@@ -414,6 +418,10 @@ class TedeeLock extends IPSModuleStrict
                     "caption": "Local API Token"
                 }
             ]
+        },
+        {
+            "type": "Label",
+            "label": "Sicherheit und Schloss-Auswahl: Nutze am besten verschlüsselte Tokens. Wenn du mehrere Schlösser hast, kannst du hier die ID deines Schlosses eintragen. Trägst du eine 0 ein, so wird automatisch das erste gefundene Schloss verwendet."
         },
         {
             "type": "RowLayout",
@@ -430,6 +438,10 @@ class TedeeLock extends IPSModuleStrict
                     "minimum": 0
                 }
             ]
+        },
+        {
+            "type": "Label",
+            "label": "Webhook-Basis-URL: Über diese URL kommuniziert die Bridge mit deinem IP-Symcon, um Status-Updates in Echtzeit zu senden."
         },
         {
             "type": "RowLayout",
